@@ -1,16 +1,23 @@
-<ion-view view-title="Chats">
+<ion-view view-title="Citas">
   <ion-content>
+    
     <ion-list>
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="chat in chats" type="item-text-wrap" href="#/tab/details/{{chat.id}}">
-        <img ng-src="{{chat.face}}">
-        <h2>{{chat.name}}</h2>
-        <p>{{chat.lastText}}</p>
-        <i class="icon ion-chevron-right icon-accessory"></i>
+      <ion-item>
+        <ion-label>Fecha</ion-label>
+        <ion-datetime displayFormat="YYYY-MM-DDTHH:mm" [(ngModel)]="myDate"></ion-datetime>
+      </ion-item>
 
-        <ion-option-button class="button-assertive" ng-click="remove(chat)">
+      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="appointment in lstAppointment" type="item-text-wrap" ng-click="showDetails(appointment)"  href="#/tab/details" ng-click="showDetails(appointment)" >
+        <img ng-src="{{chat.face}}">
+        <h2>{{appointment.client.name}} - {{appointment.client.state}}</h2> <h3>Fecha: {{appointment.appointmentDate}}</h3> 
+        <p>{{appointment.description}}</p>
+        <i class="icon ion-chevron-right icon-accessory"></i>
+        <p>Esta atendido: <h4>{{appointment.wasAttended == false ? 'NO' : 'YES' }}</h4></p>
+        <ion-option-button class="button-assertive" ng-click="remove(appointment)">
           Delete
         </ion-option-button>
       </ion-item>
     </ion-list>
+
   </ion-content>
 </ion-view>

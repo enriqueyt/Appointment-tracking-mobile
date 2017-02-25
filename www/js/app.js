@@ -7,7 +7,20 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 
-.run(function($ionicPlatform) {
+.run(function($ionicPlatform, $state, $rootScope, authentication) {
+
+  $rootScope.$on('$stateChangeStart', function(event,next, nextParams, fromState){
+ 
+    if(!authentication.isAuthenticated){
+       if(next.name.indexOf('login')==-1) {
+        event.preventDefault();
+        $state.go('login-tabs.login');
+      }
+    };
+    var obj = JSON.parse(authentication.loadCredentials);
+    $rootScope.userData = typeof obj == 'string' ? JSON.parse(obj) : obj;    
+  });
+
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -20,7 +33,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
+
   });
+
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -57,9 +72,9 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
     })
 
     .state('tab.detail', {
-      url: '/details/:chatId',
+      url: '/details',
       views: {
-        'tab-details': {
+        'tab-appointment': {
           templateUrl: 'templates/appointment-detail.html',
           controller: 'AppointmentDetailCtrl'
         }

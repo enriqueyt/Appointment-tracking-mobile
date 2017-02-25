@@ -48,51 +48,52 @@ angular.module('starter.services', [])
     }
   };
 })
-
 .factory('authentication', authentication)
+.factory('appointmentServices', appointmentServices)
 
 authentication.$inject = ['$q', '$http'];
 
 function authentication($q, $http){
-  var token_local = 'calorie_counter',
+  var token_local = 'IAM',
       isAuthenticated = false,
       authToken = undefined,
       rol = '';
 
   var cargar_credenciales = function(){
     var _token = window.localStorage.getItem(token_local);
-    if(_token) credenciales_usuario('main', _token);
+    if(_token){
+      return credenciales_usuario('main', _token);
+    } 
+    return null;
   };
 
   var guardar_credenciales = function(_rol, data){
-    window.localStorage.setItem(token_local, data);
-    credenciales_usuario(_rol, data)
+    window.localStorage.setItem(token_local, JSON.stringify(data) );
+    credenciales_usuario(token_local, data)
   };
 
   var credenciales_usuario = function(_rol, data){
-    isAuthenticated = true;
-    authToken = data
-
-    if(_rol == 'main') 
-      rol = 'user_rol';
+    isAuthenticated = (data != null ? true : false);
+    authToken = (data != null ? JSON.stringify(data) : data);
+    return authToken;
   };
 
   var login = function(user){
 
     return $q(function(resolve, reject){
-
       var request = {
         method:'POST',
-        url:'http://localhost:3000/auth/login',        
+        url:'http://localhost:3000/auth/login',
         data:user
       };
 
       $http(request)
         .then(function(data){
-          guardar_credenciales('main', data.data)
+          data = data.data;
+          guardar_credenciales('main', data)
           resolve(data);
         },function(error){
-          console.log('error')
+          console.log('error all llamar al login')
           console.log(error)
           reject(error);
         })        
@@ -104,15 +105,62 @@ function authentication($q, $http){
     isAuthenticated = false;
     window.localStorage.removeItem(token_local);
   };
-
+  
   cargar_credenciales();
 
   return {
     login: login,
     lofout:logout,
-    isAuthenticated:function(){
-      return isAuthenticated;
-    }
-
+    isAuthenticated:isAuthenticated,
+    userData:authToken,
+    loadCredentials:cargar_credenciales()
   }
+};
+
+
+appointmentServices.$inject = ['$q', '$http'];
+
+function appointmentServices($q, $http){
+
+  var callAppointmentsByUser = function(_id){
+    return $q(function(resolve, reject){
+      
+      $http.get('http://localhost:3000/api/appointment/appointments/byUser/'+_id+'/10/0')
+      .then(function(data){
+        console.log(data)
+        resolve(data);
+      },function(error){
+        console.log('error all llamar al login')
+        console.log(error)
+        reject(error);
+      });
+
+    });
+  };
+
+  var updateAppointment = function(appointment){
+    return $q(function(resolve, reject){
+    
+      var req = {
+        method:'PUT',
+        url:'http://localhost:3000/api/appointment/'+appointment._id,
+        data:appointment
+      };
+      
+      $http(req)
+        .then(function(data){
+          console.log(data)
+          resolve(data);
+        }, function(err){
+          console.log(err)
+          reject(err);
+        });
+    });
+  };
+
+  return {
+    callAppointmentsByUser : callAppointmentsByUser,
+    updateAppointment : updateAppointment
+  }
+
 };

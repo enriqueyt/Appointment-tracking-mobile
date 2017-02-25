@@ -13,8 +13,7 @@ angular
 
   LoginCtrl.$inject = ['$scope', '$state', '$ionicPopup', 'authentication'];
 
-  function LoginCtrl($scope, $state, $ionicPopup, authentication){
-    console.log('eyt')
+  function LoginCtrl($scope, $state, $ionicPopup, authentication){    
 
     $scope.user = {};
 
@@ -26,12 +25,13 @@ angular
       authentication
         .login($scope.user)
         .then(function(data){
-          if(data.data.success)
-            $state.go('tab.dash', {id:data.data.doc.id})
+          if(data.success){
+            $state.go('tab.dash', {id:data.data.id})
+          }
           else{
             var alert = $ionicPopup.alert({
               title:'Error',
-              template:data.data.info.message
+              template:data.message
             });
           }
 
@@ -39,10 +39,12 @@ angular
         .catch(function(error){
           console.log('error')
           console.log(error)
+          var alert = $ionicPopup.alert({
+              title:'Error',
+              template:error
+            });
         })
     };
-
-
   };
 
   AccountCtrl.$inject = ['$scope'];
@@ -53,9 +55,9 @@ angular
     };
   };
 
-  DashCtrl.$inject = ['$scope', '$stateParams'];
+  DashCtrl.$inject = ['$scope', '$rootScope', '$stateParams'];
 
-  function DashCtrl($scope, $stateParams){
+  function DashCtrl($scope, $rootScope, $stateParams){
     console.log('dashboard eyt');
 
     if($stateParams.id)
@@ -64,29 +66,95 @@ angular
     console.log('DashCtrl')
     console.log($scope.id)
 
+    console.log(typeof $rootScope.userData)
+
   };
 
-  AppointmentCtrl.$inject = ['$scope', 'Chats'];
+  AppointmentCtrl.$inject = ['$scope', '$rootScope', '$state', 'appointmentServices'];
 
-  function AppointmentCtrl($scope, Chats){
-    // With the new view caching in Ionic, Controllers are only called
-    // when they are recreated or on app start, instead of every page change.
-    // To listen for when this page is active (for example, to refresh data),
-    // listen for the $ionicView.enter event:
-    //
-    //$scope.$on('$ionicView.enter', function(e) {
-    //});
-
-    $scope.chats = Chats.all();
+  function AppointmentCtrl($scope, $rootScope, $state, appointmentServices){
     
-    $scope.remove = function(chat) {
-      Chats.remove(chat);
+    appointmentServices
+      .callAppointmentsByUser($rootScope.userData.data.id)
+      .then(function(data){        
+        $scope.lstAppointment = data.data.data;
+      }, function(err){
+        console.log(err)
+      });
+
+    $scope.showDetails = function(appointment){
+      $rootScope.currentAppointment = appointment;      
     };
+
   };
 
-  AppointmentDetailCtrl.$inject = ['$scope', '$stateParams', 'Chats'];
+  AppointmentDetailCtrl.$inject = ['$scope', '$rootScope', '$state', '$stateParams', '$ionicPopup', 'appointmentServices'];
 
-  function AppointmentDetailCtrl($scope, $stateParams, Chats){
+  function AppointmentDetailCtrl($scope, $rootScope, $state, $stateParams, $ionicPopup, appointmentServices){
+    $scope.lstproducts=[];
+    $scope.howWasAppoint='';
+    $scope.date=$rootScope.currentAppointment.appointmentDate;
+    $scope.name=$rootScope.currentAppointment.client.name;
+    $scope.phone=$rootScope.currentAppointment.client.phone;
+    $scope.description=$rootScope.currentAppointment.description;
+    $scope.wasAttended=$rootScope.currentAppointment.wasAttended;    
+    $scope.howWasAppoint=$rootScope.currentAppointment.howWasAppointment;
+    
+    if($rootScope.currentAppointment.products.length>0){
+      $scope.sold=true;
+      for(var i=0, len = $rootScope.currentAppointment.products.length; i<len;i++){    
+        $scope.lstproducts.push({
+          placeholder: $rootScope.currentAppointment.products[i],
+          name: $rootScope.currentAppointment.products[i]
+        })
+      }
+      
+    }
+    
+    $scope.addProduct = function(){
+      $scope.lstproducts.push({
+        name:'',
+        placeholder:'Ingrese Producto'
+      });      
+    };
+    
+    $scope.updateAppointment = function(){
 
-    $scope.chat = Chats.get($stateParams.chatId);
+      var query = {
+        _id:$rootScope.currentAppointment._id,
+        wasAttended:document.getElementsByName('wasAttended')[0].value,
+        howWasAppointment:document.howasForm.howWasAppointment.value        
+      };
+
+      if($scope.lstproducts!==undefined){
+        query.products=[];
+        $scope.lstproducts.forEach(function(element, index, array){          
+          query.products.push(element.name);
+        });
+      };
+      
+      appointmentServices
+        .updateAppointment(query)
+        .then(function(data){ 
+          console.log(data);
+          if(data.data.error){
+            var alert = $ionicPopup.alert({
+              title:data.data.message.message,
+              template:err.data
+            });  
+          }
+          else{
+            var alert = $ionicPopup.alert({
+              title:'Error',
+              template:'Se actualizo correctamente'
+            });
+          }
+        }, function(err){
+          var alert = $ionicPopup.alert({
+              title:'Error actualizando una cita',
+              template:err.data
+            });
+        });
+
+    };
   };
