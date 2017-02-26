@@ -7,7 +7,7 @@
         <ion-datetime displayFormat="YYYY-MM-DDTHH:mm" [(ngModel)]="myDate"></ion-datetime>
       </ion-item>
 
-      <ion-item class="item-remove-animate item-avatar item-icon-right" ng-repeat="appointment in lstAppointment" type="item-text-wrap" ng-click="showDetails(appointment)"  href="#/tab/details" ng-click="showDetails(appointment)" >
+      <ion-item ng-class="{ 'item-balanced' : appointment.wasAttended  }"  class="item-remove-animate item-avatar item-icon-right" ng-repeat="appointment in lstAppointment" type="item-text-wrap" ng-click="showDetails(appointment)"  href="#/tab/details" ng-click="showDetails(appointment)" >
         <img ng-src="{{chat.face}}">
         <h2>{{appointment.client.name}} - {{appointment.client.state}}</h2> <h3>Fecha: {{appointment.appointmentDate}}</h3> 
         <p>{{appointment.description}}</p>

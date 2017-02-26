@@ -1,1 +1,5 @@
 /* Empty. Add your own CSS if you like */
+
+ion-tabs.tabs-color-active-positive .tab-item.tab-item-active, ion-tabs.tabs-color-active-positive .tab-item.active, ion-tabs.tabs-color-active-positive .tab-item.activated {
+    color: #886aea !important;
+}

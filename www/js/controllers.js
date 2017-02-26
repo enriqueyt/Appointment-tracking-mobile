@@ -55,18 +55,40 @@ angular
     };
   };
 
-  DashCtrl.$inject = ['$scope', '$rootScope', '$stateParams'];
+  DashCtrl.$inject = ['$scope', '$rootScope', '$stateParams', '$ionicPopup', 'appointmentServices', 'authentication'];
 
-  function DashCtrl($scope, $rootScope, $stateParams){
+  function DashCtrl($scope, $rootScope, $stateParams, $ionicPopup, appointmentServices, authentication){
     console.log('dashboard eyt');
 
     if($stateParams.id)
       $scope.id = $stateParams.id
 
+    $scope.name=JSON.parse(JSON.parse(authentication.loadCredentials)).data.name;
+
     console.log('DashCtrl')
     console.log($scope.id)
 
-    console.log(typeof $rootScope.userData)
+    appointmentServices
+        .dashboard($scope.id)
+        .then(function(data){ 
+          console.log(data);
+          if(data.error){
+            var alert = $ionicPopup.alert({
+              title:data.message.message,
+              template:JSON.stringify(data)
+            });  
+          }
+          else{
+            console.log(data.data)
+            $scope.attendedAppointments=data.data.filter(item=>item._id==true)[0].count;
+            $scope.unattendedAppointments=data.data.filter(item=>item._id==false)[0].count;
+          }
+        }, function(err){
+          var alert = $ionicPopup.alert({
+              title:'Error actualizando una cita',
+              template:err.data
+            });
+        });
 
   };
 
@@ -106,9 +128,8 @@ angular
         $scope.lstproducts.push({
           placeholder: $rootScope.currentAppointment.products[i],
           name: $rootScope.currentAppointment.products[i]
-        })
-      }
-      
+        });
+      }  
     }
     
     $scope.addProduct = function(){

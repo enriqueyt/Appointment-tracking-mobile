@@ -117,10 +117,21 @@ function authentication($q, $http){
   }
 };
 
-
 appointmentServices.$inject = ['$q', '$http'];
 
 function appointmentServices($q, $http){
+
+  var dashboard = function(_id){
+    return $q(function(resolve, reject){
+      $http.get('http://localhost:3000/api/appointment/groupByuser/'+_id+'/'+true)
+      .then(function(data){
+        resolve(data.data);
+      },function(error){
+        reject(error.data);
+      });
+
+    });
+  };
 
   var callAppointmentsByUser = function(_id){
     return $q(function(resolve, reject){
@@ -160,7 +171,8 @@ function appointmentServices($q, $http){
 
   return {
     callAppointmentsByUser : callAppointmentsByUser,
-    updateAppointment : updateAppointment
+    updateAppointment : updateAppointment,
+    dashboard:dashboard
   }
 
 };
