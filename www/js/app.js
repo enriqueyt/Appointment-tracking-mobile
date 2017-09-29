@@ -91,6 +91,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
       }
     })
 
+    .state('tab.addProspect', {
+      url: '/addProspect',
+      views: {
+        'tab-addProspect': {
+          templateUrl: 'templates/tab-addProspect.html',
+          controller: 'AddProspectCtrl'
+        }
+      }
+    })
+
     .state('login-tabs', {
       url: '/login-tabs',
       abstract: true,

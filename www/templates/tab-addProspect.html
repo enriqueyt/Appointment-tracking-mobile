@@ -1,0 +1,43 @@
+  
+  <ion-view view-title="Agregar  prospectos">
+
+    <ion-content class="padding">
+      <ion-header-bar class="bar-positive" style="position: relative;" ng-show="lstProspects.length>0">
+        <div class="buttons">
+          <button class="button button-icon icon ion-ios-minus-outline"
+            ng-click="data.showDelete = !data.showDelete; data.showReorder = false"></button>
+        </div>
+        <h1 class="title">Lista de Prospectos</h1>
+        <div class="buttons">
+          <button class="button" ng-click="data.showDelete = false; saveProspects();">
+              Salvar
+          </button>
+        </div>
+      </ion-header-bar>
+
+      <ion-list show-delete="data.showDelete">
+
+          <ion-item ng-repeat="prospect in lstProspects" 
+                    item="prospect"
+                    class="item-remove-animate">
+
+            <label class="item item-input">
+              <input type="text" placeholder="Nombre" name="name" ng-model="prospect.name" ng-required="true"/>
+            </label>
+            <label class="item item-input">
+              <input type="text" placeholder="Telefono" name="phone" ng-model="prospect.phone" ng-required="true"/>
+            </label>
+
+            <ion-delete-button style="color:#387ef5" class="ion-minus-circled ion-royal" 
+                ng-click="deleteProspect(prospect)">
+            </ion-delete-button>
+
+          </ion-item>
+      </ion-list>
+      
+      <button style="text-align: right" type="button" class="button button-full button-dark" ng-click="addProspect()">
+        + Prospecto
+      </button>
+
+  </ion-content>
+</ion-view>

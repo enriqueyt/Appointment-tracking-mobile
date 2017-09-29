@@ -3,16 +3,34 @@
     
     <ion-list>
       <ion-item>
-        <ion-label>Fecha</ion-label>
-        <ion-datetime displayFormat="YYYY-MM-DDTHH:mm" [(ngModel)]="myDate"></ion-datetime>
+        <div class="item item-input">
+          
+          <div class="">
+            <button class="button button-dark" ng-click="back()"><</button>
+          </div>
+
+          <input type="date" id="mydate" ng-model="mydate" ng-value="{{mydate}}"  style="text-align: center">
+
+          <div style="padding-right: 3%">
+            <button class="button button-dark" ng-click="follow()">></button>
+          </div>
+
+        </div>
       </ion-item>
 
-      <ion-item ng-class="{ 'item-balanced' : appointment.wasAttended  }"  class="item-remove-animate item-avatar item-icon-right" ng-repeat="appointment in lstAppointment" type="item-text-wrap" ng-click="showDetails(appointment)"  href="#/tab/details" ng-click="showDetails(appointment)" >
+      <ion-item 
+          ng-class="{ 'item-balanced' : appointment.wasAttended, 'item-balanced' : !appointment.wasAttended && appointment.howWasAppointment.length>0 }"          
+          class="item-remove-animate item-avatar item-icon-right" 
+          ng-repeat="appointment in lstAppointment" type="item-text-wrap"
+          href="#/tab/details" 
+          ng-click="showDetails(appointment)" >
         <img ng-src="{{chat.face}}">
-        <h2>{{appointment.client.name}} - {{appointment.client.state}}</h2> <h3>Fecha: {{appointment.appointmentDate}}</h3> 
+        <h2>Fecha: <b>{{ appointment.appointmentDate }}</b></h2>
+        <h2>Cliente: {{appointment.client.name}} - <b>{{appointment.client.phone}}</b></h2> 
         <p>{{appointment.description}}</p>
         <i class="icon ion-chevron-right icon-accessory"></i>
-        <p>Esta atendido: <h4>{{appointment.wasAttended == false ? 'NO' : 'YES' }}</h4></p>
+      
+        <p style="display: inline-block">Esta atendido: <h4 style="display: inline-block">{{(!appointment.wasAttended && appointment.howWasAppointment.length>0) ? 'YES' : 'NO' }}</h4></p>
         <ion-option-button class="button-assertive" ng-click="remove(appointment)">
           Delete
         </ion-option-button>
