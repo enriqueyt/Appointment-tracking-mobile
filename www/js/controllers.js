@@ -58,15 +58,12 @@ angular
   DashCtrl.$inject = ['$scope', '$rootScope', '$stateParams', '$ionicPopup', 'appointmentServices', 'authentication'];
 
   function DashCtrl($scope, $rootScope, $stateParams, $ionicPopup, appointmentServices, authentication){
-    console.log('dashboard eyt');
+
 
     if($stateParams.id)
       $scope.id = $stateParams.id
 
     $scope.name=JSON.parse(JSON.parse(authentication.loadCredentials)).data.name;
-
-    console.log('DashCtrl')
-    console.log($scope.id)
 
     appointmentServices
         .dashboard($scope.id)
@@ -80,8 +77,15 @@ angular
           }
           else{
             console.log(data.data)
-            $scope.attendedAppointments=data.data.filter(item=>item._id==true)[0].count;
-            $scope.unattendedAppointments=data.data.filter(item=>item._id==false)[0].count;
+            if(data.data.length==0){
+              $scope.attendedAppointments=0;
+              $scope.unattendedAppointments=0;
+              $scope.efectiveAppointments=0;
+            }
+            else{
+              $scope.attendedAppointments=data.data.filter(item=>item._id==true)[0].count;
+              $scope.unattendedAppointments=data.data.filter(item=>item._id==false)[0].count;
+            }
           }
         }, function(err){
           var alert = $ionicPopup.alert({
