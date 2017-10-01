@@ -10,12 +10,13 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
 .run(function($ionicPlatform, $state, $rootScope, authentication) {
 
   $rootScope.$on('$stateChangeStart', function(event,next, nextParams, fromState){
- 
+    
     if(!authentication.isAuthenticated){
        if(next.name.indexOf('login')==-1) {
-        event.preventDefault();
-        $state.go('login-tabs.login');
-      }
+          event.preventDefault();
+          $state.go('login-tabs.login');
+          return;
+        }
     };
     var obj = JSON.parse(authentication.loadCredentials);
     $rootScope.userData = typeof obj == 'string' ? JSON.parse(obj) : obj;    
@@ -87,6 +88,16 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.services'])
         'tab-account': {
           templateUrl: 'templates/tab-account.html',
           controller: 'AccountCtrl'
+        }
+      }
+    })
+
+    .state('tab.addProspect', {
+      url: '/addProspect',
+      views: {
+        'tab-addProspect': {
+          templateUrl: 'templates/tab-addProspect.html',
+          controller: 'AddProspectCtrl'
         }
       }
     })

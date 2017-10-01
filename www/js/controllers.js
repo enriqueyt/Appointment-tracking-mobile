@@ -1,3 +1,4 @@
+
 angular
   .module('starter.controllers', [])
 
@@ -9,7 +10,9 @@ angular
 
   .controller('LoginCtrl', LoginCtrl)
 
-  .controller('AccountCtrl', AccountCtrl);
+  .controller('AccountCtrl', AccountCtrl)
+
+  .controller('AddProspectCtrl', AddProspectCtrl);
 
   LoginCtrl.$inject = ['$scope', '$state', '$ionicPopup', 'authentication'];
 
@@ -25,6 +28,7 @@ angular
       authentication
         .login($scope.user)
         .then(function(data){
+          
           if(data.success){
             $state.go('tab.dash', {id:data.data.id})
           }
@@ -54,17 +58,46 @@ angular
       enableFriends: true
     };
   };
+  
+  AddProspectCtrl.$inject = ['$scope', '$rootScope', 'prospectServices', 'authentication'];
 
+  function AddProspectCtrl($scope, $rootScope, prospectServices, authentication){
+    $scope.lstProspects=[];
+    $scope.data = {
+      showDelete: false
+    };
+    $scope.addProspect=function(){
+      $scope.lstProspects.push({name:'',phone:''});
+    };
+    $scope.deleteProspect=function(prospect){
+      var index=$scope.lstProspects.indexOf(prospect);
+      if(index!=-1)$scope.lstProspects.splice(index,1);
+    };
+    $scope.saveProspects=function(){
+      console.log($scope.lstProspects)
+      
+      prospectServices
+        .saveProspect(JSON.parse(authentication.loadCredentials).data.id, $scope.lstProspects)
+        .then(function(data){
+          console.log(data)
+          if(data.data){
+            $scope.lstProspects=[];
+          }
+        }, function(err){
+          console.log(err);
+        })
+    };
+  };
   DashCtrl.$inject = ['$scope', '$rootScope', '$stateParams', '$ionicPopup', 'appointmentServices', 'authentication'];
 
   function DashCtrl($scope, $rootScope, $stateParams, $ionicPopup, appointmentServices, authentication){
-
-
+    
     if($stateParams.id)
       $scope.id = $stateParams.id
+    else
+      $scope.id = JSON.parse(authentication.loadCredentials).data.id;
 
-    $scope.name=JSON.parse(JSON.parse(authentication.loadCredentials)).data.name;
-
+    $scope.name=JSON.parse(authentication.loadCredentials).data.name;
     appointmentServices
         .dashboard($scope.id)
         .then(function(data){ 
@@ -86,6 +119,7 @@ angular
               $scope.attendedAppointments=data.data.filter(item=>item._id==true)[0].count;
               $scope.unattendedAppointments=data.data.filter(item=>item._id==false)[0].count;
             }
+
           }
         }, function(err){
           var alert = $ionicPopup.alert({
@@ -99,18 +133,50 @@ angular
   AppointmentCtrl.$inject = ['$scope', '$rootScope', '$state', 'appointmentServices'];
 
   function AppointmentCtrl($scope, $rootScope, $state, appointmentServices){
-    
-    appointmentServices
+      
+    /*appointmentServices
       .callAppointmentsByUser($rootScope.userData.data.id)
       .then(function(data){        
         $scope.lstAppointment = data.data.data;
       }, function(err){
         console.log(err)
       });
+*/
+    appointmentsUserByDay($rootScope.userData.data.id, moment(new Date()).format("YYYY-MM-DD"))
 
     $scope.showDetails = function(appointment){
       $rootScope.currentAppointment = appointment;      
     };
+
+    $scope.mydate=new Date();
+  
+    $scope.follow = function(){
+      var tomorrow = new Date($scope.mydate);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      $scope.mydate=tomorrow;
+      appointmentsUserByDay($rootScope.userData.data.id, moment($scope.mydate).format("YYYY-MM-DD"))
+    };
+
+    $scope.back = function(){      
+      var yesterday= new Date($scope.mydate);
+      yesterday.setDate(yesterday.getDate() - 1);
+      $scope.mydate=yesterday;
+      appointmentsUserByDay($rootScope.userData.data.id, moment($scope.mydate).format("YYYY-MM-DD"))
+    };
+
+    function appointmentsUserByDay(_id,_date){
+      appointmentServices
+        .callAppointmentsUserByDay(_id,_date)
+        .then(function(data){
+          $scope.lstAppointment=data.data.data||[];
+          $scope.lstAppointment.forEach(function(element) {
+              element.appointmentDate=moment(element.appointmentDate).format("YYYY-MM-DD hh:mm:ss")
+          });
+        })
+        .catch(function(err){
+          console.log(err)
+        });
+    }
 
   };
 
@@ -118,12 +184,13 @@ angular
 
   function AppointmentDetailCtrl($scope, $rootScope, $state, $stateParams, $ionicPopup, appointmentServices){
     $scope.lstproducts=[];
-    $scope.howWasAppoint='';
+    $scope.howWasAppoint='';    
     $scope.date=$rootScope.currentAppointment.appointmentDate;
     $scope.name=$rootScope.currentAppointment.client.name;
     $scope.phone=$rootScope.currentAppointment.client.phone;
     $scope.description=$rootScope.currentAppointment.description;
-    $scope.wasAttended=$rootScope.currentAppointment.wasAttended;    
+    $scope.address=$rootScope.currentAppointment.address;
+    $scope.wasAttended=$rootScope.currentAppointment.wasAttended;
     $scope.howWasAppoint=$rootScope.currentAppointment.howWasAppointment;
     
     if($rootScope.currentAppointment.products.length>0){
@@ -144,10 +211,10 @@ angular
     };
     
     $scope.updateAppointment = function(){
-
+      
       var query = {
         _id:$rootScope.currentAppointment._id,
-        wasAttended:document.getElementsByName('wasAttended')[0].value,
+        wasAttended:document.howasForm.wasAttended.value,
         howWasAppointment:document.howasForm.howWasAppointment.value        
       };
 
@@ -170,7 +237,7 @@ angular
           }
           else{
             var alert = $ionicPopup.alert({
-              title:'Error',
+              title:'Exito!',
               template:'Se actualizo correctamente'
             });
           }
