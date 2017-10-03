@@ -98,15 +98,17 @@ angular
       $scope.id = JSON.parse(authentication.loadCredentials).data.id;
 
     $scope.name=JSON.parse(authentication.loadCredentials).data.name;
+    $scope.avatar=JSON.parse(authentication.loadCredentials).data.avatar;
+
     appointmentServices
         .dashboard($scope.id)
         .then(function(data){ 
-          console.log(data);
+  
           if(data.error){
             var alert = $ionicPopup.alert({
               title:data.message.message,
               template:JSON.stringify(data)
-            });  
+            });
           }
           else{
             console.log(data.data)
@@ -192,7 +194,8 @@ angular
     $scope.address=$rootScope.currentAppointment.address;
     $scope.wasAttended=$rootScope.currentAppointment.wasAttended;
     $scope.howWasAppoint=$rootScope.currentAppointment.howWasAppointment;
-    
+    $scope.avatar=$rootScope.currentAppointment.client.avatar;
+    console.log($rootScope.currentAppointment)
     if($rootScope.currentAppointment.products.length>0){
       $scope.sold=true;
       for(var i=0, len = $rootScope.currentAppointment.products.length; i<len;i++){    

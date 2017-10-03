@@ -39,9 +39,10 @@ function authentication($q, $http){
     return null;
   };
 
-  var guardar_credenciales = function(_rol, data){
+  var guardar_credenciales = function(_rol, data, done){
     window.localStorage.setItem(token_local, JSON.stringify(data) );
     credenciales_usuario(token_local, data)
+    done(true);
   };
 
   var credenciales_usuario = function(_rol, data){
@@ -62,8 +63,11 @@ function authentication($q, $http){
       $http(request)
         .then(function(data){
           data = data.data;
-          guardar_credenciales('main', data)
-          resolve(data);
+          
+          guardar_credenciales('main', data, function(){
+            resolve(data);
+          });
+
         },function(error){
           console.log('error all llamar al login')
           console.log(error)

@@ -19,12 +19,12 @@
       </ion-item>
 
       <ion-item 
-          ng-class="{ 'item-balanced' : appointment.wasAttended, 'item-balanced' : !appointment.wasAttended && appointment.howWasAppointment.length>0 }"          
+          ng-class="{ 'item-balanced' : appointment.wasAttended }"          
           class="item-remove-animate item-avatar item-icon-right" 
           ng-repeat="appointment in lstAppointment" type="item-text-wrap"
           href="#/tab/details" 
           ng-click="showDetails(appointment)" >
-        <img ng-src="{{chat.face}}">
+        <img ng-src="{{appointment.client.avatar}}">
         <h2>Fecha: <b>{{ appointment.appointmentDate }}</b></h2>
         <h2>Cliente: {{appointment.client.name}} - <b>{{appointment.client.phone}}</b></h2> 
         <p>{{appointment.description}}</p>
